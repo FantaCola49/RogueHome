@@ -2,45 +2,45 @@
 
 public class OpenDoor : MonoBehaviour
 {
-    private AudioSource _audio;
-    private bool _RogueEntered;
-    private int _VolumeRate = 5;
+    private AudioSource _alert;
+    private int _volumeChangeStep = 5;
+    private bool _doorOpened;
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if(collision.TryGetComponent<Rogue>(out Rogue rogue))
         {
-            if (!_RogueEntered)
+            if (_doorOpened)
             {
-                _RogueEntered = true;
-                _audio.Play();
+                _doorOpened = false;
             }
             else
             {
-                _RogueEntered = false;
+                _doorOpened = true;
+                _alert.Play();
             }
-
             Debug.Log("The Rogue went through the door!!!");
         }
     }
 
     private void Update()
     {
-        if (_RogueEntered)
+        if (_doorOpened & _alert.volume <= 1)
         {
-            _audio.volume += (Time.deltaTime / _VolumeRate);
+            _alert.volume += Time.deltaTime / _volumeChangeStep;
         }
         else
         {
-            _audio.volume -= (Time.deltaTime / _VolumeRate);
+            _alert.volume -= Time.deltaTime / _volumeChangeStep;
         }
-        if (_audio.volume == 0)
-            _audio.Stop();
+
+        if (_alert.volume == 0)
+            _alert.Stop();
     }
 
     private void Start()
     {
-        _audio = GetComponent<AudioSource>();
-        _audio.volume = 0.01f ;
+        _alert = GetComponent<AudioSource>();
+        _alert.volume = 0.01f ;
     }
 }
